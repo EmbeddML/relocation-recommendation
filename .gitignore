@@ -5,3 +5,4 @@ venv/
 packages/*.whl
 .env
 env/
+.idea
