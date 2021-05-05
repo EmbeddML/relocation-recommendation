@@ -6,3 +6,4 @@ packages/*.whl
 .env
 env/
 .idea
+.ipynb_checkpoints
