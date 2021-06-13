@@ -6,3 +6,5 @@ DATA_DIR = PROJECT_DIR.joinpath("data")
 RAW_DATA_DIR = DATA_DIR.joinpath("raw")
 PROCESSED_DATA_DIR = DATA_DIR.joinpath("processed")
 GENERATED_DATA_DIR = DATA_DIR.joinpath("generated")
+
+FUNCTIONAL_DATA_DIR = RAW_DATA_DIR.joinpath("functional")
