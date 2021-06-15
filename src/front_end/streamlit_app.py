@@ -1,29 +1,48 @@
 import pydeck as pdk
 import streamlit as st
+
+import plotly.express as px
 from src.front_end.components.map_component import map_component
 from geopy import Nominatim
 from shapely.geometry import Polygon
-from SessionState import get_state
-
-state = get_state()
-
 from front_end.processing import get_geodataframe_for_city, get_lat_and_lon_by_name, get_filtered_df, \
-    add_similaries_to_df
+    add_similaries_to_df, get_nonzero_features
 from front_end.streamlit_helpers import cities_selectbox_options, selectbox_options, OPACITY, LINE_COLOR, LINE_WIDTH, \
     VIEW_STATE_ZOOM, radio_buttons_options
+import numpy as np
+from SessionState import get_state
+from src.front_end.streamlit_helpers import color_mapping
+
+
+def show_features(data, title, log_y=False, color=False, orientation='v'):
+    if color:
+        columns = np.array([col.split("_")[0] for col in data.index])
+        colors = np.array([color_mapping[col] for col in columns])
+        fig = px.bar(data, title=title, color=colors, orientation=orientation, log_y=log_y)
+    else:
+        fig = px.bar(data, title=title, orientation=orientation)
+    fig.update_yaxes(title=None)
+    fig.update_xaxes(title=None)
+    fig.update_layout(showlegend=False)
+    fig.update_xaxes(tickangle=270)
+    return fig
+
+    
+
+state = get_state()
 
 st.set_page_config(page_title="Region recommendation system", layout="wide")
 st.title("Recommendation system for regions in a city")
 st.sidebar.title("How the similarity is to be calculated?")
-chosen_modalities = \
-st.sidebar.radio("", radio_buttons_options, 0, format_func=lambda o: o[1])[0]
+chosen_modalities = st.sidebar.radio("", radio_buttons_options, 0, format_func=lambda o: o[1])[0]
+
 source_col, dest_col = st.beta_columns(2)
+
 
 with source_col:
     st.title("Pick a source region from the map")
 
-    source_city = \
-        st.selectbox("Choose a source city", list(cities_selectbox_options.items()), 0, format_func=lambda o: o[1])[0]
+    source_city = st.selectbox("Choose a source city", list(cities_selectbox_options.items()), 0, format_func=lambda o: o[1])[0]
     source_option = st.selectbox("Choose by which feature to filter regions in source city",
                                  list(selectbox_options.items()), 0,
                                  format_func=lambda o: o[1])
@@ -57,10 +76,6 @@ with source_col:
     source_hex_id = map_component(initialViewState=view_state, layers=[source_layer], key="source_map")
     state.source_hex_id = source_hex_id
 
-    # source_deck = pdk.Deck(
-    #     map_style=MAP_STYLE,
-    #     tooltip={
-    #         "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}"})
 
 with dest_col:
     st.title("Similar regions in target city")
@@ -93,7 +108,7 @@ with dest_col:
             auto_highlight=True
         )
     else:
-        target_df = add_similaries_to_df(target_df, state.source_hex_id, chosen_modalities)
+        target_df = add_similaries_to_df(target_df, state.source_hex_id, chosen_modalities).reset_index()
         target_layer = pdk.Layer(
             "GeoJsonLayer",
             data=target_df,
@@ -104,6 +119,7 @@ with dest_col:
             pickable=True,
             auto_highlight=True
         )
+
     view_state = pdk.ViewState(
         longitude=target_lon,
         latitude=target_lat,
@@ -111,11 +127,58 @@ with dest_col:
 
     target_hex_id = map_component(initialViewState=view_state, layers=[target_layer], key="target_map")
     state.target_hex_id = target_hex_id
-    # target_deck = pdk.Deck(
-    #     map_style=MAP_STYLE,
-    #     layers=[target_layer], initial_view_state=view_state,
-    #     tooltip={
-    #         "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}\n Similarity: {similarity}\n H3 ID: {h3}"})
 
+
+if state.source_hex_id is not None and state.source_hex_id != "":
+    with st.beta_expander("Transport features"):
+        source_transport_col, dest_transport_col = st.beta_columns(2)
+    
+        with source_transport_col:
+            directions, trips = get_nonzero_features(state.source_hex_id, "transport")
+            directions_chart = show_features(directions, title="Source region directions")
+            trips_chart = show_features(trips, title="Source region trips")
+            st.plotly_chart(directions_chart, width=0, height=0, use_container_width=True)
+            st.plotly_chart(trips_chart, width=0, height=0, use_container_width=True)
+
+        with dest_transport_col:
+            if state.target_hex_id is not None and state.target_hex_id != "":
+                directions, trips = get_nonzero_features(state.target_hex_id, "transport")
+                directions_chart = show_features(directions, title="Target region directions")
+                trips_chart = show_features(trips, title="Target region trips")
+                st.plotly_chart(directions_chart, width=0, height=0, use_container_width=True)
+                st.plotly_chart(trips_chart, width=0, height=0, use_container_width=True)
+
+    with st.beta_expander("Functional features"):
+        source_functional_col, dest_functional_col = st.beta_columns(2)
+    
+        with source_functional_col:
+            df_functional = get_nonzero_features(state.source_hex_id, "functional")
+            if not df_functional.empty:
+                functional_chart = show_features(df_functional, title="Source region functional info", log_y=True, color=True)
+                st.plotly_chart(functional_chart, width=0, height=0, use_container_width=True)
+
+        with dest_functional_col:
+            if state.target_hex_id is not None and state.target_hex_id != "":
+                df_functional = get_nonzero_features(state.target_hex_id, "functional")
+                if not df_functional.empty:
+                    functional_chart = show_features(df_functional, title="Target region functional info", log_y=True, color=True)
+                    st.plotly_chart(functional_chart, width=0, height=0, use_container_width=True)
+
+
+    with st.beta_expander("Road features"):
+        source_road_col, dest_road_col = st.beta_columns(2)
+    
+        with source_road_col:
+            df_roads = get_nonzero_features(state.source_hex_id, "roads")
+            if not df_roads.empty:
+                roads_chart = show_features(df_roads, title="Source region roads")
+                st.plotly_chart(roads_chart, width=0, height=0, use_container_width=True)
+
+        with dest_road_col:
+            if state.target_hex_id is not None and state.target_hex_id != "":
+                df_roads = get_nonzero_features(state.target_hex_id, "roads")
+                if not df_roads.empty:
+                    roads_chart = show_features(df_roads, title="Target region roads")
+                    st.plotly_chart(roads_chart, width=0, height=0, use_container_width=True)
 
 state.sync()

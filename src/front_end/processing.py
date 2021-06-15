@@ -42,6 +42,24 @@ def get_geodataframe_for_city(city_name: str):
         st.error(f"Not implemented yet for {city_name}")
         return None
 
+def get_nonzero_features(h3_id: str, feature: str):
+    if feature == "transport":
+        df = pd.read_pickle(os.path.join("data", "processed", "transport.pkl.gz"))
+        df = df.loc[h3_id]
+        df_directions = df[df.index.str.startswith("directions")]
+        df_trips = df[df.index.str.startswith("trips")]
+        return df_directions, df_trips
+    elif feature == "functional":
+        df = pd.read_pickle(os.path.join("data", "processed", "functional.pkl.gz"))
+        df = df.loc[h3_id]
+        df = df[df != 0].sort_values(ascending=False)
+        return df
+    elif feature == "roads":
+        df = pd.read_pickle(os.path.join("data", "processed", "road.pkl.gz"))
+        df = df.loc[h3_id]
+        df = df[df != 0].sort_values(ascending=False)
+        return df
+
 
 def get_lat_and_lon_by_name(name: str) -> Tuple[float, float]:
     location = geolocator.geocode(name)
