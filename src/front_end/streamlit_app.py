@@ -56,13 +56,9 @@ with source_col:
 
     source_hex_id = map_component(initialViewState=view_state, layers=[source_layer], key="source_map")
     state.source_hex_id = source_hex_id
-    st.write(state.source_hex_id)
-    st.write(state.target_hex_id)
-
 
     # source_deck = pdk.Deck(
     #     map_style=MAP_STYLE,
-    #     layers=[source_layer], initial_view_state=view_state,
     #     tooltip={
     #         "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}"})
 
@@ -85,7 +81,7 @@ with dest_col:
                                        value=[target_min_column, target_max_column])
 
     target_df = get_filtered_df(target_city_df, target_min, target_max, target_option[0])
-    if selected_hex is None or selected_hex == "":
+    if state.source_hex_id is None or state.source_hex_id == "":
         target_layer = pdk.Layer(
             "GeoJsonLayer",
             data=target_df,
@@ -97,7 +93,7 @@ with dest_col:
             auto_highlight=True
         )
     else:
-        target_df = add_similaries_to_df(target_df, selected_hex, chosen_modalities)
+        target_df = add_similaries_to_df(target_df, state.source_hex_id, chosen_modalities)
         target_layer = pdk.Layer(
             "GeoJsonLayer",
             data=target_df,
@@ -115,8 +111,6 @@ with dest_col:
 
     target_hex_id = map_component(initialViewState=view_state, layers=[target_layer], key="target_map")
     state.target_hex_id = target_hex_id
-    st.write(state.source_hex_id)
-    st.write(state.target_hex_id)
     # target_deck = pdk.Deck(
     #     map_style=MAP_STYLE,
     #     layers=[target_layer], initial_view_state=view_state,
@@ -124,4 +118,4 @@ with dest_col:
     #         "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}\n Similarity: {similarity}\n H3 ID: {h3}"})
 
 
-    state.sync()
+state.sync()

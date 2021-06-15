@@ -23,9 +23,10 @@ def get_filtered_df(df, min, max, column_name, filter_out_empty=True):
 def add_similaries_to_df(df, hex_id, modalities):
     cols = [col for t in modalities for col in embeddings.columns if col.startswith(t)]
     filtered_embeddings = embeddings[cols]
-    sims = pd.DataFrame(data={"h3":filtered_embeddings.index,
+    sims = pd.DataFrame(data={"hex_id":filtered_embeddings.index,
                              "similarity":pairwise_distances(filtered_embeddings.loc[[hex_id]], filtered_embeddings, metric='euclidean')[0]})
-    sims.set_index("h3",inplace=True)
+    sims.set_index("hex_id",inplace=True)
+    df.set_index("hex_id",inplace=True)
     stats_with_sims = df.join(sims, how='left')
     stats_with_sims['similarity'] = 1 - stats_with_sims['similarity'] / max(stats_with_sims['similarity'])
     stats_with_sims = stats_with_sims.dropna()
