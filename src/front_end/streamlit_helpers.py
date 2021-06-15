@@ -15,6 +15,16 @@ cities_selectbox_options = {
     "poznan": "Poznań"
 }
 
+radio_buttons_options = [
+    (("x", "y", "z"), "Road Network + GTFS data + Functional data"),
+    (("y", "z"), "Functional data + GTFS data"),
+    (("x", "z"), "GTFS data + Road Network"),
+    (("x", "y"), "Functional data + Road Network"),
+    (("x",), "Only Road Network"),
+    (("y",), "Only GTFS data"),
+    (("z",), "Only Functional data")
+]
+
 VIEW_STATE_ZOOM = 11
 LINE_WIDTH = 0.3
 LINE_COLOR = [0, 0, 0]

@@ -4,11 +4,13 @@ import streamlit as st
 from front_end.processing import get_geodataframe_for_city, get_lat_and_lon_by_name, get_filtered_df, \
     add_similaries_to_df
 from front_end.streamlit_helpers import cities_selectbox_options, selectbox_options, OPACITY, LINE_COLOR, LINE_WIDTH, \
-    VIEW_STATE_ZOOM, MAP_STYLE
+    VIEW_STATE_ZOOM, MAP_STYLE, radio_buttons_options
 
 st.set_page_config(page_title="Region recommendation system", layout="wide")
-
 st.title("Recommendation system for regions in a city")
+st.sidebar.title("How the similarity is to be calculated?")
+chosen_modalities = \
+st.sidebar.radio("", radio_buttons_options, 0, format_func=lambda o: o[1])[0]
 source_col, dest_col = st.beta_columns(2)
 
 with source_col:
@@ -80,19 +82,19 @@ with dest_col:
             "GeoJsonLayer",
             data=target_df,
             opacity=OPACITY,
-            get_fill_color=[174, 213, 129],
+            get_fill_color=[154, 3, 3],
             get_line_color=LINE_COLOR,
             line_width_min_pixels=LINE_WIDTH,
             pickable=True,
             auto_highlight=True
         )
     else:
-        target_df = add_similaries_to_df(target_df, selected_hex)
+        target_df = add_similaries_to_df(target_df, selected_hex, chosen_modalities)
         target_layer = pdk.Layer(
             "GeoJsonLayer",
             data=target_df,
             opacity=OPACITY,
-            get_fill_color='[similarity*255, 0, 0]',
+            get_fill_color='[similarity*252, 3, 3]',
             get_line_color=LINE_COLOR,
             line_width_min_pixels=LINE_WIDTH,
             pickable=True,
@@ -107,6 +109,6 @@ with dest_col:
         map_style=MAP_STYLE,
         layers=[target_layer], initial_view_state=view_state,
         tooltip={
-            "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}\n Similarity: {similarity}\n H3 ID: {index}"})
+            "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}\n Similarity: {similarity}\n H3 ID: {h3}"})
 
     st.pydeck_chart(target_deck)
