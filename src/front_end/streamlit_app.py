@@ -1,5 +1,11 @@
 import pydeck as pdk
 import streamlit as st
+from src.front_end.components.map_component import map_component
+from geopy import Nominatim
+from shapely.geometry import Polygon
+from SessionState import get_state
+
+state = get_state()
 
 from front_end.processing import get_geodataframe_for_city, get_lat_and_lon_by_name, get_filtered_df, \
     add_similaries_to_df
@@ -22,7 +28,7 @@ with source_col:
                                  list(selectbox_options.items()), 0,
                                  format_func=lambda o: o[1])
 
-    source_city_df = get_geodataframe_for_city(source_city)
+    source_city_df = get_geodataframe_for_city(source_city).reset_index()
     source_lat, source_lon = get_lat_and_lon_by_name(source_city)
 
     source_column = source_city_df[source_option[0]]
@@ -48,25 +54,27 @@ with source_col:
         latitude=source_lat,
         zoom=VIEW_STATE_ZOOM)
 
-    source_deck = pdk.Deck(
-        map_style=MAP_STYLE,
-        layers=[source_layer], initial_view_state=view_state,
-        tooltip={
-            "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}"})
-    st.pydeck_chart(source_deck)
+    source_hex_id = map_component(initialViewState=view_state, layers=[source_layer], key="source_map")
+    state.source_hex_id = source_hex_id
+    st.write(state.source_hex_id)
+    st.write(state.target_hex_id)
+
+
+    # source_deck = pdk.Deck(
+    #     map_style=MAP_STYLE,
+    #     layers=[source_layer], initial_view_state=view_state,
+    #     tooltip={
+    #         "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}"})
 
 with dest_col:
     st.title("Similar regions in target city")
     target_city = \
         st.selectbox("Choose a target city", list(cities_selectbox_options.items()), 0, format_func=lambda o: o[1])[0]
 
-    selected_hex = st.text_input("Enter hex name:")
-
-    target_option = st.selectbox("Choose by which feature to filter regions in target city",
-                                 list(selectbox_options.items()), 0,
+    target_option = st.selectbox("Choose by which feature to filter regions in target city", list(selectbox_options.items()), 0,
                                  format_func=lambda o: o[1])
 
-    target_city_df = get_geodataframe_for_city(target_city)
+    target_city_df = get_geodataframe_for_city(target_city).reset_index()
     target_lat, target_lon = get_lat_and_lon_by_name(target_city)
 
     target_column = target_city_df[target_option[0]]
@@ -105,10 +113,15 @@ with dest_col:
         latitude=target_lat,
         zoom=VIEW_STATE_ZOOM)
 
-    target_deck = pdk.Deck(
-        map_style=MAP_STYLE,
-        layers=[target_layer], initial_view_state=view_state,
-        tooltip={
-            "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}\n Similarity: {similarity}\n H3 ID: {h3}"})
+    target_hex_id = map_component(initialViewState=view_state, layers=[target_layer], key="target_map")
+    state.target_hex_id = target_hex_id
+    st.write(state.source_hex_id)
+    st.write(state.target_hex_id)
+    # target_deck = pdk.Deck(
+    #     map_style=MAP_STYLE,
+    #     layers=[target_layer], initial_view_state=view_state,
+    #     tooltip={
+    #         "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}\n Similarity: {similarity}\n H3 ID: {h3}"})
 
-    st.pydeck_chart(target_deck)
+
+    state.sync()
