@@ -24,8 +24,7 @@ interface State {
 }
 
 class MapComponent extends StreamlitComponentBase<State> {
-  public state = { selectedHexId: ""}
-
+  public state = { selectedHexId: "" }
 
   public render = (): ReactNode => {
     const initialViewState = this.props.args["initialViewState"]
@@ -43,7 +42,7 @@ class MapComponent extends StreamlitComponentBase<State> {
     const mapOnClick = (info: PickInfo<any>, e: MouseEvent) => {
       const hex_id = info.object?.hex_id ?? this.state.selectedHexId
       console.log(hex_id)
-      this.setState({selectedHexId: hex_id})
+      this.setState({ selectedHexId: hex_id })
       Streamlit.setComponentValue(hex_id)
     }
 
@@ -58,15 +57,15 @@ class MapComponent extends StreamlitComponentBase<State> {
             onClick={mapOnClick}
             getTooltip={(object: PickInfo<any>) =>
               object && {
-                text: `Hex ID: ${
-                  object.object?.hex_id ?? ""
-                }\nAverage price: ${
+                text: `Hex ID: ${object.object?.hex_id ?? ""}\nAverage price: ${
                   object.object?.price ?? 0
                 }\nAverage price per m2: ${
                   object.object?.price_per_m ?? 0
                 }\nAverage area: ${
                   object.object?.area ?? 0
-                }\nNumber of offers: ${object.object?.count ?? 0}`,
+                }\nNumber of offers: ${
+                  object.object?.count ?? 0
+                }${object.object?.similarity ? "\nSimilarity: " + object.object.similarity : ""}`,
               }
             }
           >

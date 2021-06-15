@@ -25,8 +25,7 @@ radio_buttons_options = [
     (("z",), "Only Functional data")
 ]
 
-VIEW_STATE_ZOOM = 11
+VIEW_STATE_ZOOM = 10
 LINE_WIDTH = 0.3
 LINE_COLOR = [0, 0, 0]
 OPACITY = 0.5
-MAP_STYLE = pdk.map_styles.MAPBOX_ROAD

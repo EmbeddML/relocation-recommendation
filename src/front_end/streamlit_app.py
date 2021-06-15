@@ -10,7 +10,7 @@ state = get_state()
 from front_end.processing import get_geodataframe_for_city, get_lat_and_lon_by_name, get_filtered_df, \
     add_similaries_to_df
 from front_end.streamlit_helpers import cities_selectbox_options, selectbox_options, OPACITY, LINE_COLOR, LINE_WIDTH, \
-    VIEW_STATE_ZOOM, MAP_STYLE, radio_buttons_options
+    VIEW_STATE_ZOOM, radio_buttons_options
 
 st.set_page_config(page_title="Region recommendation system", layout="wide")
 st.title("Recommendation system for regions in a city")
