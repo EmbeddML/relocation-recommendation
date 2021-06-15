@@ -31,3 +31,4 @@ ipympl
 click
 unidecode
 streamlit
+selenium
