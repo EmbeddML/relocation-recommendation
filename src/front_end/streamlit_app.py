@@ -22,6 +22,14 @@ selectbox_options = {
     "count": "Number of offers"
 }
 
+cities_selectbox_options = {
+    "wroclaw": "Wrocław",
+    "gdansk": "Gdańsk",
+    "warszawa": "Warszawa",
+    "krakow": "Kraków",
+    "poznan": "Poznań"
+}
+
 
 def get_lat_and_lon_by_name(name: str) -> Tuple[float, float]:
     location = geolocator.geocode(name)
@@ -69,26 +77,28 @@ def get_hex_from_city_geojson(
 
 @st.cache()
 def get_geodataframe_for_city(city_name: str):
-    if "Wrocław" in city_name:
-        with open(os.path.join("data", 'wroclaw.geojson')) as f:
-            wroclaw_geojson = json.load(f)
+    if os.path.exists(os.path.join("data", "raw", f"{city_name}_otodom_prices.geojson")) and os.path.exists(
+            os.path.join("data","hexes", f"{city_name}_9.geojson")):
 
-        wro_df, hex_wro = get_hex_from_city_geojson(wroclaw_geojson, resolution=8)
-        wro_df = wro_df.set_crs(epsg=4326)
-        wro_df = wro_df.set_index('hex_id')
+        hex_df = gpd.read_file(os.path.join("data","hexes", f"{city_name}_9.geojson"))
+        hex_df.set_crs(epsg=4326)
+        hex_df.set_index("h3",inplace=True)
 
-        otodom = gpd.read_file("data/raw/OtodomPrices.geojson")
-        gdf = gpd.sjoin(wro_df, otodom, op="intersects", how="inner").drop(columns=["index_right"]).rename(
+        otodom_prices = gpd.read_file(os.path.join("data", "raw", f"{city_name}_otodom_prices.geojson"))
+        otodom_prices.set_crs(epsg=4326)
+
+        gdf = gpd.sjoin(hex_df, otodom_prices, op="intersects", how="inner").drop(columns=["index_right"]).rename(
             columns={"id": "count"})
 
         agg_function_columns = {"count": "count", "price": "mean", "price_per_m": "mean", "area": "mean"}
-        stats_df = gdf.groupby(by="hex_id").agg(func=agg_function_columns)
+        stats_df = gdf.groupby(by="h3").agg(func=agg_function_columns)
 
-        gdf_grouped = stats_df.join(wro_df, how="right").fillna(0)
+        gdf_grouped = stats_df.join(hex_df, how="right",on='h3').fillna(0)
         gdf_grouped = gpd.GeoDataFrame(gdf_grouped).set_crs(epsg=4326)
+        print(gdf_grouped.head(5))
         return gdf_grouped
     else:
-        st.error("Not implemented yet for other cities")
+        st.error(f"Not implemented yet for {city_name}")
         return None
 
 
@@ -104,9 +114,10 @@ source_col, dest_col = st.beta_columns(2)
 with source_col:
     st.title("Pick a source region from the map")
 
-    source_city = st.text_input("Enter a name of source city:", value="Wrocław")
+    source_city = st.selectbox("Choose a source city", list(cities_selectbox_options.items()), 0, format_func=lambda o: o[1])[0]
 
-    source_option = st.selectbox("Choose by which feature to filter regions in source city", list(selectbox_options.items()), 0,
+    source_option = st.selectbox("Choose by which feature to filter regions in source city",
+                                 list(selectbox_options.items()), 0,
                                  format_func=lambda o: o[1])
 
     source_city_df = get_geodataframe_for_city(source_city)
@@ -144,9 +155,10 @@ with source_col:
 
 with dest_col:
     st.title("Similar regions in target city")
-    target_city = st.text_input("Enter a name of target city:", value="Wrocław")
+    target_city = st.selectbox("Choose a target city", list(cities_selectbox_options.items()), 0, format_func=lambda o: o[1])[0]
 
-    target_option = st.selectbox("Choose by which feature to filter regions in target city", list(selectbox_options.items()), 0,
+    target_option = st.selectbox("Choose by which feature to filter regions in target city",
+                                 list(selectbox_options.items()), 0,
                                  format_func=lambda o: o[1])
 
     target_city_df = get_geodataframe_for_city(target_city)
