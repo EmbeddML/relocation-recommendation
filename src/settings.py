@@ -9,3 +9,5 @@ GENERATED_DATA_DIR = DATA_DIR.joinpath("generated")
 
 ASSETS_DIR = PROJECT_DIR.joinpath("assets")
 KEPLER_DIR = ASSETS_DIR.joinpath("kepler")
+
+FUNCTIONAL_DATA_DIR = RAW_DATA_DIR.joinpath("functional")
