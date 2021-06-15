@@ -3,7 +3,7 @@ import streamlit.components.v1 as components
 import pydeck as pdk
 from typing import List
 
-_RELEASE = False
+_RELEASE = True
 _COMPONENT_NAME = "map_component"
 
 if not _RELEASE:
