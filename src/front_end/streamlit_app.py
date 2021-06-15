@@ -1,6 +1,6 @@
 import pydeck as pdk
 import streamlit as st
-
+import pandas as pd
 import plotly.express as px
 from src.front_end.components.map_component import map_component
 from geopy import Nominatim
@@ -17,8 +17,8 @@ from src.front_end.streamlit_helpers import color_mapping
 def show_features(data, title, log_y=False, color=False, orientation='v'):
     if color:
         columns = np.array([col.split("_")[0] for col in data.index])
-        colors = np.array([color_mapping[col] for col in columns])
-        fig = px.bar(data, title=title, color=colors, orientation=orientation, log_y=log_y)
+        data_df = pd.DataFrame({"tag": data.index, "value": data, "key": columns})
+        fig = px.bar(data_df, x="tag", y="value", title=title, color="key", color_discrete_map=color_mapping, orientation=orientation, log_y=log_y)
     else:
         fig = px.bar(data, title=title, orientation=orientation)
     fig.update_yaxes(title=None)
