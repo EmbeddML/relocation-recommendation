@@ -95,7 +95,6 @@ def get_geodataframe_for_city(city_name: str):
 
         gdf_grouped = stats_df.join(hex_df, how="right",on='h3').fillna(0)
         gdf_grouped = gpd.GeoDataFrame(gdf_grouped).set_crs(epsg=4326)
-        print(gdf_grouped.head(5))
         return gdf_grouped
     else:
         st.error(f"Not implemented yet for {city_name}")
