@@ -108,7 +108,7 @@ with dest_col:
             auto_highlight=True
         )
     else:
-        target_df = add_similaries_to_df(target_df, state.source_hex_id, chosen_modalities)
+        target_df = add_similaries_to_df(target_df, state.source_hex_id, chosen_modalities).reset_index()
         target_layer = pdk.Layer(
             "GeoJsonLayer",
             data=target_df,
@@ -134,36 +134,51 @@ if state.source_hex_id is not None and state.source_hex_id != "":
         source_transport_col, dest_transport_col = st.beta_columns(2)
     
         with source_transport_col:
-                directions, trips = get_nonzero_features(state.source_hex_id, "transport")
-                directions_chart = show_features(directions, title="Source region directions")
-                trips_chart = show_features(trips, title="Source region trips")
+            directions, trips = get_nonzero_features(state.source_hex_id, "transport")
+            directions_chart = show_features(directions, title="Source region directions")
+            trips_chart = show_features(trips, title="Source region trips")
+            st.plotly_chart(directions_chart, width=0, height=0, use_container_width=True)
+            st.plotly_chart(trips_chart, width=0, height=0, use_container_width=True)
+
+        with dest_transport_col:
+            if state.target_hex_id is not None and state.target_hex_id != "":
+                directions, trips = get_nonzero_features(state.target_hex_id, "transport")
+                directions_chart = show_features(directions, title="Target region directions")
+                trips_chart = show_features(trips, title="Target region trips")
                 st.plotly_chart(directions_chart, width=0, height=0, use_container_width=True)
                 st.plotly_chart(trips_chart, width=0, height=0, use_container_width=True)
-        with dest_transport_col:
-            #TODO: target region transport features
-            pass
 
     with st.beta_expander("Functional features"):
         source_functional_col, dest_functional_col = st.beta_columns(2)
     
         with source_functional_col:
             df_functional = get_nonzero_features(state.source_hex_id, "functional")
-            functional_chart = show_features(df_functional, title="Source region functional info", log_y=True, color=True)
-            st.plotly_chart(functional_chart, width=0, height=0, use_container_width=True)
+            if not df_functional.empty:
+                functional_chart = show_features(df_functional, title="Source region functional info", log_y=True, color=True)
+                st.plotly_chart(functional_chart, width=0, height=0, use_container_width=True)
+
         with dest_functional_col:
-            #TODO: target region transport features
-            pass
+            if state.target_hex_id is not None and state.target_hex_id != "":
+                df_functional = get_nonzero_features(state.target_hex_id, "functional")
+                if not df_functional.empty:
+                    functional_chart = show_features(df_functional, title="Target region functional info", log_y=True, color=True)
+                    st.plotly_chart(functional_chart, width=0, height=0, use_container_width=True)
+
 
     with st.beta_expander("Road features"):
         source_road_col, dest_road_col = st.beta_columns(2)
     
         with source_road_col:
             df_roads = get_nonzero_features(state.source_hex_id, "roads")
-            roads_chart = show_features(df_roads, title="Source region roads")
-            st.plotly_chart(roads_chart, width=0, height=0, use_container_width=True)
-        with dest_road_col:
-            #TODO: target region transport features
-            pass
+            if not df_roads.empty:
+                roads_chart = show_features(df_roads, title="Source region roads")
+                st.plotly_chart(roads_chart, width=0, height=0, use_container_width=True)
 
+        with dest_road_col:
+            if state.target_hex_id is not None and state.target_hex_id != "":
+                df_roads = get_nonzero_features(state.target_hex_id, "roads")
+                if not df_roads.empty:
+                    roads_chart = show_features(df_roads, title="Target region roads")
+                    st.plotly_chart(roads_chart, width=0, height=0, use_container_width=True)
 
 state.sync()
