@@ -11,6 +11,9 @@ import streamlit as st
 from src.front_end.components.map_component import map_component
 from geopy import Nominatim
 from shapely.geometry import Polygon
+from SessionState import get_state
+
+state = get_state()
 
 st.set_page_config(page_title="Region recommendation system", layout="wide")
 
@@ -137,7 +140,10 @@ with source_col:
         zoom=11)
 
     source_hex_id = map_component(initialViewState=view_state, layers=[source_layer], key="source_map")
-    st.write(source_hex_id)
+    state.source_hex_id = source_hex_id
+    st.write(state.source_hex_id)
+    st.write(state.target_hex_id)
+
 
 
 with dest_col:
@@ -174,24 +180,9 @@ with dest_col:
         zoom=11)
 
     target_hex_id = map_component(initialViewState=view_state, layers=[target_layer], key="target_map")
-    st.write(target_hex_id)
+    state.target_hex_id = target_hex_id
+    st.write(state.source_hex_id)
+    st.write(state.target_hex_id)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # if ble is None:
-    #     # breakpoint()
-    #     # session_state.target_hex_id = ble
-    #     # target_hex_id = ble
-    # st.write(session_state.target_hex_id)
+    state.sync()
