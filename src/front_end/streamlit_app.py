@@ -8,6 +8,7 @@ import h3
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
+from src.front_end.components.map_component import map_component
 from geopy import Nominatim
 from shapely.geometry import Polygon
 
@@ -109,7 +110,7 @@ with source_col:
     source_option = st.selectbox("Choose by which feature to filter regions in source city", list(selectbox_options.items()), 0,
                                  format_func=lambda o: o[1])
 
-    source_city_df = get_geodataframe_for_city(source_city)
+    source_city_df = get_geodataframe_for_city(source_city).reset_index()
     source_lat, source_lon = get_lat_and_lon_by_name(source_city)
 
     source_column = source_city_df[source_option[0]]
@@ -125,6 +126,7 @@ with source_col:
         opacity=0.2,
         get_fill_color=[174, 213, 129],
         get_line_color=[0, 0, 0],
+        auto_highlight=True,
         line_width_min_pixels=2,
         pickable=True
     )
@@ -134,13 +136,9 @@ with source_col:
         latitude=source_lat,
         zoom=11)
 
-    source_deck = pdk.Deck(
-        map_style=pdk.map_styles.MAPBOX_LIGHT,
-        layers=[source_layer], initial_view_state=view_state,
-        tooltip={
-            "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}"})
+    source_hex_id = map_component(initialViewState=view_state, layers=[source_layer], key="source_map")
+    st.write(source_hex_id)
 
-    st.pydeck_chart(source_deck)
 
 with dest_col:
     st.title("Similar regions in target city")
@@ -149,7 +147,7 @@ with dest_col:
     target_option = st.selectbox("Choose by which feature to filter regions in target city", list(selectbox_options.items()), 0,
                                  format_func=lambda o: o[1])
 
-    target_city_df = get_geodataframe_for_city(target_city)
+    target_city_df = get_geodataframe_for_city(target_city).reset_index()
     target_lat, target_lon = get_lat_and_lon_by_name(target_city)
 
     target_column = target_city_df[target_option[0]]
@@ -165,6 +163,7 @@ with dest_col:
         opacity=0.2,
         get_fill_color=[174, 213, 129],
         get_line_color=[0, 0, 0],
+        auto_highlight=True,
         line_width_min_pixels=2,
         pickable=True
     )
@@ -174,10 +173,25 @@ with dest_col:
         latitude=target_lat,
         zoom=11)
 
-    target_deck = pdk.Deck(
-        map_style=pdk.map_styles.MAPBOX_LIGHT,
-        layers=[target_layer], initial_view_state=view_state,
-        tooltip={
-            "text": "Average price: {price}\nAverage price per m2: {price_per_m}\nAverage area: {area}\nNumber of offers: {count}"})
+    target_hex_id = map_component(initialViewState=view_state, layers=[target_layer], key="target_map")
+    st.write(target_hex_id)
 
-    st.pydeck_chart(target_deck)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # if ble is None:
+    #     # breakpoint()
+    #     # session_state.target_hex_id = ble
+    #     # target_hex_id = ble
+    # st.write(session_state.target_hex_id)
