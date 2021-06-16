@@ -1,0 +1,12 @@
+.vscode/
+assets/
+cache/
+notebooks/
+packages/
+references/
+reports/
+scripts/
+venv/
+.env
+data/generated
+.git/

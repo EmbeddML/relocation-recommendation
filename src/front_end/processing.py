@@ -2,7 +2,7 @@ import streamlit as st
 
 from typing import Tuple
 from geopy import Nominatim
-from settings import PROCESSED_DATA_DIR
+from src.settings import PROCESSED_DATA_DIR
 import pandas as pd
 import os
 import geopandas as gpd

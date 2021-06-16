@@ -5,9 +5,9 @@ import plotly.express as px
 from src.front_end.components.map_component import map_component
 from geopy import Nominatim
 from shapely.geometry import Polygon
-from front_end.processing import get_geodataframe_for_city, get_lat_and_lon_by_name, get_filtered_df, \
+from src.front_end.processing import get_geodataframe_for_city, get_lat_and_lon_by_name, get_filtered_df, \
     add_similaries_to_df, get_nonzero_features
-from front_end.streamlit_helpers import cities_selectbox_options, selectbox_options, OPACITY, LINE_COLOR, LINE_WIDTH, \
+from src.front_end.streamlit_helpers import cities_selectbox_options, selectbox_options, OPACITY, LINE_COLOR, LINE_WIDTH, \
     VIEW_STATE_ZOOM, radio_buttons_options
 import numpy as np
 from SessionState import get_state
