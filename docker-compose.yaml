@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  streamlit-app:
+    image: calychas/sys-rek-projekt
+    ports:
+      - "8501:8501"
+    expose:
+      - "8501"
+    labels:
+      - "traefik.http.routers.relocation-app.entrypoints=https"
+      - "traefik.http.routers.relocation-app.tls=true"
+      - "traefik.http.routers.relocation-app.rule=Host(`relocation.embedd.ml`)"
+      - "traefik.http.services.relocation-app-service.loadbalancer.server.port=8501"
+    deploy:
+      restart_policy:
+        condition: any
+
+networks:
+  default:
+    external: true
+    name: traefik_default
