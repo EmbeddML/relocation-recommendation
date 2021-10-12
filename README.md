@@ -1,26 +1,58 @@
-# Scripts
-## Generate hexagons for city and extract road features
-```python
-python .\scripts\generate_place.py download 'Wrocław,Poland' .\data\generated\
-python .\scripts\generate_place.py h3 .\data\generated\Wroclaw_Poland\place.geojson .\data\generated\Wroclaw_Poland 8
-python .\scripts\generate_place.py assignh3 .\data\generated\Wroclaw_Poland
-python .\scripts\generate_place.py features .\data\generated\Wroclaw_Poland
-```
+<div id="top"></div>
 
-# Settings
-## VSCode settings
-```json
-{
-    "python.pythonPath": "venv\\Scripts\\python.exe",
-    "python.formatting.provider": "black",
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true,
-    "python.languageServer": "Pylance",
-    "python.analysis.extraPaths": [
-        "src"
-    ],
-    "terminal.integrated.env.windows": {
-        "PYTHONPATH": ".;src"
-    },
-}
+<h2 align="center">Relocation recommendation system</h3>
+
+  <p align="center">
+    Looking for a suitable region for relocation purposes made easier
+    <br />
+    <br />
+  </p>
+</div>
+
+[![Product Name Screen Shot][product-screenshot_1]](http://relocation.embedd.ml/)
+
+[![Product Name Screen Shot][product-screenshot_2]](http://relocation.embedd.ml/)
+
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+This is the source code for the Relocation Recommendation System. To run a local copy of this project use [Docker](https://www.docker.com/) and execute:
+```shell
+docker run -p 8501:8501 --rm -it calychas/sys-rek-projekt
 ```
+There is no data included in the source code, but prepared Docker image has it all.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+### Built With
+
+* Python
+* Streamlit
+* GeoPandas
+* Kepler<area>.gl
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- Contributors -->
+## Main Contributors
+
+- Filip Dratwiński
+- Piotr Gramacki
+- Kacper Leśniara
+- Szymon Woźniak
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+[product-screenshot_1]: images/demo_1.jpg
+[product-screenshot_2]: images/demo_2.jpg
