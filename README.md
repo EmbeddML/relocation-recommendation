@@ -9,9 +9,9 @@
   </p>
 </div>
 
-[![Product Name Screen Shot][product-screenshot_1]](http://relocation.embedd.ml/)
+[![Product Name Screen Shot][product-screenshot_1]](http://relocation.embedd.gq/)
 
-[![Product Name Screen Shot][product-screenshot_2]](http://relocation.embedd.ml/)
+[![Product Name Screen Shot][product-screenshot_2]](http://relocation.embedd.gq/)
 
 
 <!-- ABOUT THE PROJECT -->
